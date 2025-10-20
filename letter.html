@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư chúc mừng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #heart-canvas {
+            position: absolute;
+            z-index: 1;
+        }
+
+        .letter-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease;
+        }
+
+        .letter-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .letter {
+            background: rgba(234, 128, 176, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(234, 128, 176, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 20px;
+            display: none;
+        }
+
+        .letter h2 {
+            color: #ea80b0;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(234, 128, 176, 0.5);
+        }
+
+        .letter p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            min-height: 29px; /* Prevent jumping when typing */
+        }
+        
+        .signature {
+            margin-top: 30px;
+            color: #ea80b0;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(234, 128, 176, 0.3);
+        }
+
+        .continue-btn {
+            background: linear-gradient(45deg, #ea80b0, #e665a2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(234, 128, 176, 0.3);
+            display: none;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(234, 128, 176, 0.4);
+            background: linear-gradient(45deg, #e665a2, #ea80b0);
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="heart-canvas"></canvas>
+    <div class="letter-container">
+        <div class="letter floating">
+            <h2>✨ Gửi <span id="receiver-name"></span> ✨</h2>
+            <div id="letter-content"></div>
+            <p class="signature">From ox của diên :3 ❤️</p>
+        </div>
+        <button class="continue-btn">Tiếp tục ✨</button>
+    </div>
+
+    <script>
+        // Mảng các lời chúc khác nhau
+        const messages = [
+            [
+                "Nhân ngày Phụ nữ Việt Nam 20/10",
+                "Chúc em bé luôn xinh đẹp, hạnh phúc và thành công trong cuộc sống",
+                "Mỗi ngày đều tràn ngập niềm vui và những điều tuyệt vời nhé! 🌸",
+            ],
+            [
+                "Nhân ngày 20/10 đặc biệt này",
+                "Chúc dợ có một ngày thật nhiều niềm vui và tiếng cười",
+                "Luôn tỏa sáng rạng ngời và gặt hái được nhiều thành công trong cuộc sống 🌟",
+            ],
+            [
+                "Happy Vietnamese Women's Day 20/10! 🎉",
+                "Chúc dợ mãi rạng ngời như những đóa hoa tươi thắm",
+                "Luôn giữ nụ cười trên môi và hạnh phúc trong tim 🌺",
+            ],
+            [
+                "Gửi đến dợ những lời chúc tốt đẹp nhất nhân ngày 20/10",
+                "Chúc dợ luôn mạnh khỏe, tràn đầy năng lượng",
+                "Và thực hiện được tất cả những ước mơ của mình ✨",
+            ],
+            [
+                "Ngày 20/10 thật đặc biệt với em bé",
+                "Chúc dợ luôn tràn đầy hạnh phúc, niềm vui và tình yêu thương cụa tuiiii",
+                "Mọi điều tốt đẹp nhất sẽ đến với dợ 🎀",
+            ]
+        ];
+
+        // Chọn ngẫu nhiên một bộ lời chúc
+        function getRandomMessage() {
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        // Hiển thị lời chúc với hiệu ứng gõ chữ
+        async function typeMessages() {
+            const letterContent = document.getElementById('letter-content');
+            const selectedMessages = getRandomMessage();
+            
+            for (let message of selectedMessages) {
+                const p = document.createElement('p');
+                letterContent.appendChild(p);
+                
+                for (let char of message) {
+                    p.textContent += char;
+                    await new Promise(resolve => setTimeout(resolve, 50)); // Tốc độ gõ chữ
+                }
+                await new Promise(resolve => setTimeout(resolve, 500)); // Delay giữa các dòng
+            }
+        }
+        const canvas = document.getElementById('heart-canvas');
+        const ctx = canvas.getContext('2d');
+        const letter = document.querySelector('.letter');
+        const letterContainer = document.querySelector('.letter-container');
+        const continueBtn = document.querySelector('.continue-btn');
+        const receiverName = document.getElementById('receiver-name');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Get user name from localStorage
+        const userName = localStorage.getItem('userName');
+        receiverName.textContent = userName;
+
+        // Heart drawing parameters
+        let t = 0;
+        let points = [];
+        const hearts = [];
+        
+        function createHeart() {
+            return {
+                x: canvas.width * Math.random(),
+                y: canvas.height * Math.random(),
+                size: 2 + Math.random() * 3,
+                color: `hsl(${330 + Math.random() * 30}, 100%, ${70 + Math.random() * 20}%)`,
+                angle: Math.random() * Math.PI * 2,
+                speed: 1 + Math.random()
+            };
+        }
+
+        // Initialize hearts
+        for(let i = 0; i < 50; i++) {
+            hearts.push(createHeart());
+        }
+
+        function drawHeart(x, y, size, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y + size * 0.5);
+            ctx.bezierCurveTo(
+                x, y, 
+                x - size * 2, y, 
+                x - size * 2, y + size * 1.5
+            );
+            ctx.bezierCurveTo(
+                x - size * 2, y + size * 3, 
+                x, y + size * 3.5, 
+                x, y + size * 2
+            );
+            ctx.bezierCurveTo(
+                x, y + size * 3.5, 
+                x + size * 2, y + size * 3, 
+                x + size * 2, y + size * 1.5
+            );
+            ctx.bezierCurveTo(
+                x + size * 2, y, 
+                x, y, 
+                x, y + size * 0.5
+            );
+            ctx.fill();
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            hearts.forEach(heart => {
+                heart.y -= heart.speed;
+                heart.angle += 0.02;
+                drawHeart(
+                    heart.x + Math.sin(heart.angle) * 20,
+                    heart.y,
+                    heart.size,
+                    heart.color
+                );
+
+                if(heart.y < -20) {
+                    heart.y = canvas.height + 20;
+                }
+            });
+
+            // Draw main heart
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const size = 30;
+            t += 0.05;
+            
+            const x = centerX + Math.sin(t) * 10;
+            const y = centerY + Math.sin(t * 2) * 5;
+            
+            drawHeart(x, y, size, '#ea80b0');
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation and show content gradually
+        window.onload = async () => {
+            animate();
+            
+            setTimeout(async () => {
+                letterContainer.classList.add('show');
+                letter.style.display = 'block';
+                await typeMessages(); // Đợi hiệu ứng gõ chữ hoàn thành
+                continueBtn.style.display = 'inline-block';
+            }, 1000);
+        };
+
+        // Continue button click handler
+        continueBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
